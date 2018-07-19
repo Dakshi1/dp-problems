@@ -1,0 +1,103 @@
+ 
+[/sourcecode]
+<strong>Time Complexity</strong> : O((Maximum Number of Bits)<sup>3</sup> + Q * logN), where Q is the number of queries and N is the size of set containing all valid numbers. l valid numbers.
+</strong>Method 3 Efficient and Easy to understand</strong> Store l and r as long long int and if (l > r), swap them. Find and store bitwise representation of r and (l-1) as l is included in our answer set. Find all the possible whole numbers with atmost 3 bits and less than equal the number for both r and (l-1) and store their results as l_ans and r_ans. Subtract l_ans from r_ans to get the output.
+<strong> Example: Let's take r as 2361, its bitwise representation will be "1 0 0 1 0 0 1 1 1 0 0 1".
+Generating all possible whole numbers of atmost 3 bits and less than or equal to r. For, 2361 we have total 12 bits indexed from 0 to 11.
+Step1: Off the leftmost set bit i.e. at index 0, so we are left with indices 1 to 11 and if we set any of these bit, the number formed will be less than r. Since, atmost 3 bits have to be set, output will be 11C3 + 11C2 +11C1 +11C0.
+Step2: Now set the 0- indexed bit and off for the next set bit i.e at index 3, so we are left with indices 4 to 11 and only 2 bits have to set,so desired output will be 8C2 + 8C1 + 8C0.
+Step3: Similarly set the 3- indexed bit and off for the next set bit i.e at index 6, so we are left with indices 7 to 11 and only 1 bit has to set,so desired output will be 5C1 + 5C0.
+Step 4: Set the 6-indexed bit and 0s at indices 7 to 11 is also a poosible outcome. 
+So total answer for r will be : 11C3 + 11C2 +11C1 +11C0 + 8C2 + 8C1 + 8C0 + 5C1 + 5C0 + 1 i.e 276.
+</strong> 
+Below is the implementation of above approach.
+[sourcecode language="CPP"]
+// CPP program to find the numbers
+// having atmost 3 set bits within
+// a given range
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int
+
+
+ll find_combinations(int rem_pos, int r)
+{
+    ll temp=1;
+    for(int m=r;m>=1;m--)
+    {
+        if(rem_pos<m)
+        {
+            temp=0;
+            break;
+        }
+        temp*=(rem_pos-r+m);
+        temp/=(r-m+1);
+    }
+    return temp;
+}
+void calculate_output(ll *ans, vector<int> &arr)
+{
+    int j=0, rem_pos=0;
+    if(arr.size()==0)
+    	return;
+    // will run at max 3 times as at max 3 bits have to be set
+    for(int i=0;i<3 && j<arr.size();i++)
+    {
+        while(j < arr.size() && arr[j]==0)
+            j++;
+        j++;
+       rem_pos=arr.size()-j;
+       // (i) bits have been set, so set the (3-i) bits  
+       for(int k=3-i;k>=0 && rem_pos>=0;k--)
+       {
+           *ans+=find_combinations(rem_pos, k);
+       }
+    }
+    // to include the case of 0s at the remaining positions after setting the maximum possible bits
+    *ans+=1;
+}
+void find_bit_arr(ll l, ll r, vector<int> &l_arr, vector<int> &r_arr)
+{
+    while(l>0)
+    {
+        l_arr.push_back(l & 1);
+        l= l >> 1;
+    }
+    while(r)
+    {
+        r_arr.push_back(r & 1);
+        r= r >> 1;
+    }
+    reverse(l_arr.begin(), l_arr.end());
+    reverse(r_arr.begin(), r_arr.end());
+}
+
+// Driver Code
+int main()
+ {
+ 	// vectors to store bit representations of l and r
+	vector<int> l_arr, r_arr;
+	// count of possible numbers of 3 bits  
+        ll l_ans=0, r_ans=0;
+	ll l, r;
+	cin >> l >> r;
+	if(l>r)
+	{
+	    ll temp=l;
+	    l=r;
+	    r=temp;
+	}
+	// function to bitwise representation
+	find_bit_arr(l-1,r, l_arr, r_arr);
+
+	//find count for l-1 and r
+	calculate_output(&l_ans, l_arr);
+	calculate_output(&r_ans, r_arr);
+	        
+	cout << (r_ans - l_ans) << endl;
+	   
+	return 0;
+}
+
+
+[/sourcecode]
